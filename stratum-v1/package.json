@@ -1,0 +1,19 @@
+{
+  "name": "stratum",
+  "version": "1.0.0",
+  "private": true,
+  "description": "Stratum v1 - AI-powered system design: diagram-as-code, simulation, multi-agent critique, real-time collaboration",
+  "workspaces": ["packages/*", "apps/*"],
+  "scripts": {
+    "dev": "concurrently -n server,web -c blue,green \"npm run dev -w @stratum/server\" \"npm run dev -w @stratum/web\"",
+    "build": "npm run build -w @stratum/web",
+    "start": "npm run start -w @stratum/server",
+    "test": "npm run test -w @stratum/core",
+    "typecheck": "tsc -p packages/core && tsc -p apps/server && tsc -p apps/web"
+  },
+  "devDependencies": {
+    "concurrently": "^9.1.0",
+    "typescript": "^5.6.3"
+  },
+  "engines": { "node": ">=20.19" }
+}

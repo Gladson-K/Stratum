@@ -1,0 +1,14 @@
+node_modules/
+dist/
+build/
+coverage/
+data/
+*.ydoc
+*.log
+.env
+.env.*
+!.env.example
+*.pem
+*.key
+id_glad*
+.DS_Store
