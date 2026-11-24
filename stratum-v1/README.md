@@ -36,9 +36,40 @@ npm run dev        # server on :8787 (tsx watch) and Vite on :5173 with /api and
 Run the checks:
 
 ```bash
-npm test           # vitest suite for the core engine
+npm test           # vitest suites for the core engine and the HTTP/WS server
 npm run typecheck  # tsc across core, server and web
 ```
+
+## Detailed testing
+
+All tests run offline and need no LLM key. They live in two places:
+
+| Location | Covers |
+|---|---|
+| `packages/core/test/` | SGM validation and defaults, both code dialects and metadata round-trip, M/M/c queueing and cache propagation, critique agents/de-duplication/advocate/score, typed patches, layout, offline generation, and LLM finding validation |
+| `apps/server/test/` | Health, templates, room snapshot/exports, simulate, critique, generate and CORS over real HTTP on an ephemeral port; Yjs update relay, awareness relay and debounced persistence for collaboration rooms |
+
+Useful variants:
+
+```bash
+npm run test:core     # engine only
+npm run test:server   # API and collaboration only
+```
+
+The server tests set `STRATUM_DATA_DIR` to a temporary directory, so they never write room data into the repository. `apps/server/src/index.ts` exports `createServer()` so tests can bind port 0; running `npm start` still listens normally.
+
+## Docker support
+
+Docker is local tooling only; this repository has no CI pipeline. A multi-stage image builds the web app and runs the server as a non-root user. The `test` service is behind a compose profile so a normal `docker compose up` only starts the app.
+
+```bash
+docker compose build                          # build the app image
+docker compose up                             # app on http://localhost:8787
+docker compose --profile test run --rm test   # npm test + npm run typecheck in a container
+npm run test:docker                           # same test command via npm
+```
+
+Room data is stored in the `stratum-data` volume at `/app/data`. Pass LLM settings through the environment (`STRATUM_LLM_API_KEY`, `STRATUM_LLM_BASE_URL`, `STRATUM_LLM_MODEL`); no key is baked into the image.
 
 ## Enabling the LLM reviewer (optional)
 

@@ -1,0 +1,33 @@
+services:
+  stratum:
+    build:
+      context: .
+      dockerfile: Dockerfile
+      target: runtime
+    ports:
+      - "${PORT:-8787}:8787"
+    environment:
+      PORT: 8787
+      STRATUM_DATA_DIR: /app/data
+      STRATUM_LLM_API_KEY: ${STRATUM_LLM_API_KEY:-}
+      STRATUM_LLM_BASE_URL: ${STRATUM_LLM_BASE_URL:-https://api.openai.com/v1}
+      STRATUM_LLM_MODEL: ${STRATUM_LLM_MODEL:-gpt-4o-mini}
+    volumes:
+      - stratum-data:/app/data
+    healthcheck:
+      test: ["CMD", "node", "-e", "fetch('http://127.0.0.1:8787/api/health').then(r => process.exit(r.ok ? 0 : 1)).catch(() => process.exit(1))"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+      start_period: 10s
+
+  test:
+    build:
+      context: .
+      dockerfile: Dockerfile
+      target: test
+    profiles: ["test"]
+    command: ["sh", "-c", "npm test && npm run typecheck"]
+
+volumes:
+  stratum-data:
